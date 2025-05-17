@@ -58,4 +58,3 @@ class RefreshCoinsView(APIView):
             )
 
         return Response({"message": "Coins refreshed successfully."})
-        

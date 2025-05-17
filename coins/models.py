@@ -18,5 +18,5 @@ class Coin(models.Model):
         verbose_name = 'Coin'
         verbose_name_plural = 'Coins'
 
-    def __str__(self):
+    def str(self):
         return f'{self.name} ({self.ticker})'

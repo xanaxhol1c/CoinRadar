@@ -5,5 +5,3 @@ class CoinSerializer(ModelSerializer):
     class Meta:
         model = Coin
         fields = '__all__'
-
-        

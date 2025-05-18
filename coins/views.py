@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import Coin
 from .serializers import CoinSerializer
 import requests
@@ -7,6 +8,8 @@ import requests
 from coinradar.settings import COINGECKO_SECRET
 
 class TopCoinView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         limit = int(request.query_params.get('limit', 5))
 
@@ -21,6 +24,7 @@ class TopCoinView(APIView):
 
     
 class RefreshCoinsView(APIView):
+    permission_classes = [IsAdminUser]
     def post(self, request):
         coingeko_request_url = "https://api.coingecko.com/api/v3/coins/markets"
 

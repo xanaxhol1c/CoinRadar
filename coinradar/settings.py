@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 
 from datetime import timedelta
+from celery.schedules import crontab
 
 import os
 from dotenv import load_dotenv
@@ -44,10 +45,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_celery_beat',
+
     'coins',
-    'users'
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -140,6 +144,10 @@ COINGECKO_SECRET = os.getenv("COINGECKO_SECRET")
 
 AUTH_USER_MODEL = 'users.User'
 
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -185,3 +193,15 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+CELERY_BEAT_SCHEDULE = {
+    'refresh-coins-every-minute': {
+        'task': 'coins.tasks.refresh_top_coins_task',
+        'schedule': crontab(minute='*/1'), 
+    },
+    'save-coin-history-every-day': {
+        'task': 'coins.tasks.save_coin_history_task',
+        'schedule': crontab(hour=0, minute=0),  
+    },
+}
+

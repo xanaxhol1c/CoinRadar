@@ -2,37 +2,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .models import Coin, CoinHistory
+from .models import Coin
 from .serializers import CoinSerializer
+# from .utils import save_coin_history
 import requests
-from datetime import date
 
 from coinradar.settings import COINGECKO_SECRET
-
-def save_coin_history(coins_data_list):
-    today = date.today()
-
-    history_coins = []
-
-    for coin_data in coins_data_list:
-        try:
-            coin = Coin.objects.get(id=coin_data.get("id"))
-        except:
-            continue
-
-        history = CoinHistory(  
-            coin=coin,  
-            date=today,
-            price = coin_data.get("current_price"),
-            market_cap = coin_data.get("market_cap"),
-            volume_24h = coin_data.get("total_volume"),
-            percent_change_24h = coin_data.get("price_change_percentage_24h")
-        )
-
-        history_coins.append(history)
-
-    CoinHistory.objects.bulk_create(history_coins)
-
 
 class TopCoinView(APIView):
     permission_classes = [IsAuthenticated]
@@ -50,44 +25,44 @@ class TopCoinView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     
-class RefreshCoinsView(APIView):
-    permission_classes = [IsAdminUser]
-    def post(self, request):
-        coingeko_request_url = "https://api.coingecko.com/api/v3/coins/markets"
+# class RefreshCoinsView(APIView):
+#     permission_classes = [IsAdminUser]
+#     def post(self, request):
+#         coingeko_request_url = "https://api.coingecko.com/api/v3/coins/markets"
 
-        headers = {
-            "accept": "application/json",
-            "x-cg-demo-api-key": COINGECKO_SECRET
-        }
+#         headers = {
+#             "accept": "application/json",
+#             "x-cg-demo-api-key": COINGECKO_SECRET
+#         }
 
-        params = {
-            "vs_currency": "usd",
-            "per_page": 100,
-            "page": 1
-        }
+#         params = {
+#             "vs_currency": "usd",
+#             "per_page": 100,
+#             "page": 1
+#         }
 
-        try:
-            coingeko_response = requests.get(coingeko_request_url, headers=headers, params=params)
-            coingeko_response.raise_for_status()
-            response_data = coingeko_response.json()
+#         try:
+#             coingeko_response = requests.get(coingeko_request_url, headers=headers, params=params)
+#             coingeko_response.raise_for_status()
+#             response_data = coingeko_response.json()
 
-        except requests.RequestException as e:
-            print(f"Error fetching data: {e}")
-            return Response({"message": f"Error fetching data: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         except requests.RequestException as e:
+#             print(f"Error fetching data: {e}")
+#             return Response({"message": f"Error fetching data: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        for coin in response_data:
-            Coin.objects.update_or_create(
-                id=coin.get("id"),
-                defaults={
-                    "name": coin.get("name"),
-                    "ticker": coin.get("symbol").upper(),
-                    "price": coin.get("current_price"),
-                    "market_cap": coin.get("market_cap"),
-                    "volume_24h": coin.get("total_volume"),
-                    "percent_change_24h": coin.get("price_change_percentage_24h")
-                }
-            )
+        # for coin in response_data:
+        #     Coin.objects.update_or_create(
+        #         id=coin.get("id"),
+        #         defaults={
+        #             "name": coin.get("name"),
+        #             "ticker": coin.get("symbol").upper(),
+        #             "price": coin.get("current_price"),
+        #             "market_cap": coin.get("market_cap"),
+        #             "volume_24h": coin.get("total_volume"),
+        #             "percent_change_24h": coin.get("price_change_percentage_24h")
+        #         }
+        #     )
 
-        save_coin_history(response_data)
+        # save_coin_history(response_data)
 
-        return Response({"message": "Coins refreshed successfully."}, status=status.HTTP_200_OK)
+        # return Response({"message": "Coins refreshed successfully."}, status=status.HTTP_200_OK)

@@ -2,11 +2,37 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .models import Coin
+from .models import Coin, CoinHistory
 from .serializers import CoinSerializer
 import requests
+from datetime import date
 
 from coinradar.settings import COINGECKO_SECRET
+
+def save_coin_history(coins_data_list):
+    today = date.today()
+
+    history_coins = []
+
+    for coin_data in coins_data_list:
+        try:
+            coin = Coin.objects.get(id=coin_data.get("id"))
+        except:
+            continue
+
+        history = CoinHistory(  
+            coin=coin,  
+            date=today,
+            price = coin_data.get("current_price"),
+            market_cap = coin_data.get("market_cap"),
+            volume_24h = coin_data.get("total_volume"),
+            percent_change_24h = coin_data.get("price_change_percentage_24h")
+        )
+
+        history_coins.append(history)
+
+    CoinHistory.objects.bulk_create(history_coins)
+
 
 class TopCoinView(APIView):
     permission_classes = [IsAuthenticated]
@@ -61,5 +87,7 @@ class RefreshCoinsView(APIView):
                     "percent_change_24h": coin.get("price_change_percentage_24h")
                 }
             )
+
+        save_coin_history(response_data)
 
         return Response({"message": "Coins refreshed successfully."}, status=status.HTTP_200_OK)

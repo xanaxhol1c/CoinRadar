@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import Coin
 from .serializers import CoinSerializer
@@ -13,14 +14,14 @@ class TopCoinView(APIView):
     def get(self, request):
         limit = int(request.query_params.get('limit', 5))
 
-        if limit > 100:
-            return Response({'message': 'limit can`t be greater than 100'}, status=400)
+        if limit > 100 or limit <= 0:
+            return Response({'message': 'limit must be between 1 and 100'}, status=status.HTTP_400_BAD_REQUEST)
 
         top_coins = Coin.objects.order_by("-market_cap")[:limit]
 
         serializer = CoinSerializer(top_coins, many=True)
 
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     
 class RefreshCoinsView(APIView):
@@ -46,7 +47,7 @@ class RefreshCoinsView(APIView):
 
         except requests.RequestException as e:
             print(f"Error fetching data: {e}")
-            return
+            return Response({"message": f"Error fetching data: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         for coin in response_data:
             Coin.objects.update_or_create(
@@ -61,4 +62,4 @@ class RefreshCoinsView(APIView):
                 }
             )
 
-        return Response({"message": "Coins refreshed successfully."})
+        return Response({"message": "Coins refreshed successfully."}, status=status.HTTP_200_OK)

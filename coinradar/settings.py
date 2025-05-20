@@ -202,6 +202,7 @@ CELERY_BEAT_SCHEDULE = {
     'save-coin-history-every-day': {
         'task': 'coins.tasks.save_coin_history_task',
         'schedule': crontab(hour=0, minute=0)
+        #'schedule': crontab(minute='*/1'), 
     },
 }
 

@@ -28,6 +28,27 @@ def fetch_data_from_api():
         return {"message": f"Error fetching data: {e}"}
 
 
+def refresh_top_coins(response_data):
+    Coin.objects.all().delete()
+
+    top_coins = []
+
+    for coin in response_data:
+        top_coin = Coin(
+            id=coin.get("id"),
+            name=coin.get("name"),
+            ticker=coin.get("symbol").upper(),
+            price=coin.get("current_price"),
+            market_cap=coin.get("market_cap"),
+            volume_24h=coin.get("total_volume"),
+            percent_change_24h=coin.get("price_change_percentage_24h")
+        )
+
+        top_coins.append(top_coin)
+
+    Coin.objects.bulk_create(top_coins) 
+
+
 
 def save_coin_history(coins_data_list):
     today = date.today()
@@ -35,12 +56,7 @@ def save_coin_history(coins_data_list):
     history_coins = []
 
     for coin_data in coins_data_list:
-        # try:
-        #     coin = Coin.objects.get(id=coin_data.get("id"))
-        # except:
-        #     continue
-
-        prev_coin = CoinHistory.objects.filter(coin=coin_data).order_by('-date').first()
+        prev_coin = CoinHistory.objects.filter(coin_id=coin_data.id).order_by('-date').first()
 
         if prev_coin and prev_coin.price and prev_coin.price != 0:
             try:
@@ -54,7 +70,9 @@ def save_coin_history(coins_data_list):
             percent_change_24h = coin_data.percent_change_24h
 
         history = CoinHistory(  
-            coin=coin_data,  
+            coin_id=coin_data.id,
+            coin_name=coin_data.name,
+            coin_ticker=coin_data.ticker,  
             date=today,
             price = coin_data.price,
             market_cap = coin_data.market_cap,

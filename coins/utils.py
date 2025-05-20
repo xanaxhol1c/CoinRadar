@@ -1,6 +1,6 @@
 from datetime import date
 from .models import Coin, CoinHistory
-from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
+from decimal import Decimal, ROUND_HALF_UP, InvalidOperation, getcontext
 import requests
 from coinradar.settings import COINGECKO_SECRET
 
@@ -50,12 +50,16 @@ def save_coin_history(coins_data_list):
         prev_coin = CoinHistory.objects.filter(coin_id=coin_data.id).order_by('-date').first()
 
         if prev_coin and prev_coin.price and prev_coin.price != 0:
-            try:
-                percent_change_24h = Decimal(((coin_data.price - prev_coin.price) / prev_coin.price)) * 100
-                percent_change_24h = percent_change_24h.quantize(Decimal(0.01), rounding=ROUND_HALF_UP)
+            
+            current_price = Decimal(str(coin_data.price or "0.00"))
+            prev_price = Decimal(str(prev_coin.price or "0.00"))
+
+            raw_change = ((current_price - prev_price) / prev_price) * 100
+            
+            percent_change_24h = raw_change.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
                 
-            except (InvalidOperation, TypeError, ValueError) as e:
-                percent_change_24h = Decimal("0.00")  
+            # except (InvalidOperation, TypeError, ValueError) as e:
+            #     percent_change_24h = Decimal("0.00")  
         
         else: 
             percent_change_24h = coin_data.percent_change_24h
@@ -83,5 +87,5 @@ def save_coin_history(coins_data_list):
                 "price" : history.price,
                 "market_cap" : history.market_cap,
                 "volume_24h" : history.volume_24h,
-                "percent_change_24h" : percent_change_24h
+                "percent_change_24h" : history.percent_change_24h
             })

@@ -29,30 +29,21 @@ def fetch_data_from_api():
 
 
 def refresh_top_coins(response_data):
-    Coin.objects.all().delete()
-
-    top_coins = []
-
     for coin in response_data:
-        top_coin = Coin(
+        Coin.objects.update_or_create(
             id=coin.get("id"),
-            name=coin.get("name"),
-            ticker=coin.get("symbol").upper(),
-            price=coin.get("current_price"),
-            market_cap=coin.get("market_cap"),
-            volume_24h=coin.get("total_volume"),
-            percent_change_24h=coin.get("price_change_percentage_24h")
+            defaults={
+            "name": coin.get("name"),
+            "ticker": coin.get("symbol").upper(),
+            "price": coin.get("current_price"),
+            "market_cap": coin.get("market_cap"),
+            "volume_24h": coin.get("total_volume"),
+            "percent_change_24h": coin.get("price_change_percentage_24h")}
         )
-
-        top_coins.append(top_coin)
-
-    Coin.objects.bulk_create(top_coins) 
 
 
 
 def save_coin_history(coins_data_list):
-    today = date.today()
-
     history_coins = []
 
     for coin_data in coins_data_list:
@@ -73,7 +64,7 @@ def save_coin_history(coins_data_list):
             coin_id=coin_data.id,
             coin_name=coin_data.name,
             coin_ticker=coin_data.slug,  
-            date=today,
+            date=coin_data.last_updated,
             price = coin_data.price,
             market_cap = coin_data.market_cap,
             volume_24h = coin_data.volume_24h,
@@ -82,4 +73,15 @@ def save_coin_history(coins_data_list):
 
         history_coins.append(history)
   
-    CoinHistory.objects.bulk_create(history_coins)
+    for history in history_coins:
+        CoinHistory.objects.get_or_create(
+            coin_id=history.coin_id,
+            date=history.date,
+            defaults={
+                "coin_name" : history.coin_name,
+                "coin_ticker" : history.coin_ticker,  
+                "price" : history.price,
+                "market_cap" : history.market_cap,
+                "volume_24h" : history.volume_24h,
+                "percent_change_24h" : percent_change_24h
+            })

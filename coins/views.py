@@ -2,12 +2,25 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .models import Coin
-from .serializers import CoinSerializer
+from .models import Coin, CoinHistory
+from .serializers import CoinSerializer, CoinHistorySerializer
 # from .utils import save_coin_history
+from datetime import date, timedelta, datetime
+
 import requests
 
 from coinradar.settings import COINGECKO_SECRET
+
+class CoinListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        top_coins = Coin.objects.order_by("-market_cap")
+
+        serializer = CoinSerializer(top_coins, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class TopCoinView(APIView):
     permission_classes = [IsAuthenticated]
@@ -24,7 +37,53 @@ class TopCoinView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    
+class CoinDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, coin_slug):
+        
+        coin = Coin.objects.filter(slug=coin_slug).first()
+
+        if coin is None:
+            return Response({"message" : "Coin not found"}, status.HTTP_200_OK)
+        
+        serializer = CoinSerializer(coin, many=False)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CoinHistoryView(APIView):
+    def get(self, request, coin_slug):
+        days = request.query_params.get("days")
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+
+        coin_history = CoinHistory.objects.filter(coin_ticker=coin_slug)
+        
+        if days:
+            history_date = date.today() - timedelta(days=int(days))
+
+            coin_history = coin_history.filter(date__gte=history_date)
+      
+        elif start_date and end_date:
+            start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+
+            end_date = datetime.strptime(end_date, "%Y-%m-%d").date() + timedelta(days=1)
+
+            coin_history = coin_history.filter(date__gte=start_date, date__lt=end_date)
+
+        if not coin_history.exists():
+            return Response({"message": "Coin history not found"})
+
+        serializer = CoinHistorySerializer(coin_history.order_by('-date'), many=True)
+
+        return Response(serializer.data)
+        
+
+        
+        
+
+
+
 # class RefreshCoinsView(APIView):
 #     permission_classes = [IsAdminUser]
 #     def post(self, request):

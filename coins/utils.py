@@ -72,7 +72,7 @@ def save_coin_history(coins_data_list):
         history = CoinHistory(  
             coin_id=coin_data.id,
             coin_name=coin_data.name,
-            coin_ticker=coin_data.ticker,  
+            coin_ticker=coin_data.slug,  
             date=today,
             price = coin_data.price,
             market_cap = coin_data.market_cap,

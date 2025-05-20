@@ -22,7 +22,9 @@ class Coin(models.Model):
         return f'{self.name} ({self.ticker})'
     
 class CoinHistory(models.Model):
-    coin = models.ForeignKey(Coin, on_delete=models.CASCADE)
+    coin_id = models.CharField(max_length=50)
+    coin_name = models.CharField(max_length=50)
+    coin_ticker = models.CharField(max_length=15)
     date = models.DateTimeField(auto_now_add=True)
     price = models.DecimalField(max_digits=20, decimal_places=10)
     market_cap = models.DecimalField(max_digits=30, decimal_places=2)
@@ -31,6 +33,6 @@ class CoinHistory(models.Model):
 
     class Meta:
         db_table = 'coin_history'
-        unique_together = ('coin', 'date')
+        unique_together = ('coin_id', 'date')
         ordering = ['-date']
         verbose_name = 'Coins History'

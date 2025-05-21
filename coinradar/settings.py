@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
     'coins',
     'users',
+    'subscriptions'
 ]
 
 MIDDLEWARE = [

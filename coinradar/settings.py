@@ -141,6 +141,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 COINGECKO_SECRET = os.getenv("COINGECKO_SECRET")
 
 AUTH_USER_MODEL = 'users.User'
@@ -204,6 +211,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'coins.tasks.save_coin_history_task',
         'schedule': crontab(hour=0, minute=0)
         #'schedule': crontab(minute='*/1'), 
+    },
+    'check-and-notify-users': {
+        'task': 'subscriptions.check_and_notify_users',
+        'schedule': crontab(minute='*/30'), 
     },
 }
 

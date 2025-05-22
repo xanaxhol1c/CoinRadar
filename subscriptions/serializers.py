@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import CoinSubscription
 from coins.models import Coin
-
+from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 
 class CoinSubscriptionSerializer(serializers.ModelSerializer):
     coin_name = serializers.CharField(source='coin.name', read_only=True)
@@ -9,7 +9,7 @@ class CoinSubscriptionSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CoinSubscription
-        fields = ['coin_name', 'coin_ticker', 'created_at']
+        fields = ['coin_name', 'coin_ticker', 'created_at', 'threshold_percent', 'last_notified']
 
 
 class SubscripeToCoinSerializer(serializers.ModelSerializer):
@@ -17,7 +17,7 @@ class SubscripeToCoinSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CoinSubscription
-        fields = ['coin_id']
+        fields = ['coin_id', 'created_at', 'threshold_percent']
 
     def validate_coin_id(self, value):
         try:
@@ -31,13 +31,30 @@ class SubscripeToCoinSerializer(serializers.ModelSerializer):
 
         coin_id = attrs.get('coin_id')
 
+        raw_threshold_percent = attrs.get('threshold_percent')
+
+        if raw_threshold_percent is None:
+            raw_threshold_percent = '5.00'
+
+        try:
+            threshold_percent = Decimal(str(raw_threshold_percent)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            
+        except InvalidOperation:
+            raise serializers.ValidationError("Wrong threshold percent")
+
+        if threshold_percent < Decimal('5.00'):
+            raise serializers.ValidationError("Threshold percent must be >= 5.00%")
+
         if CoinSubscription.objects.filter(user=user, coin_id=coin_id).exists():
-            return serializers.ValidationError("Subscription already exists")
+            raise serializers.ValidationError("Subscription already exists")
         
+        attrs['threshold_percent'] = threshold_percent
+
         return attrs
     
     def create(self, validated_data):
         user = self.context['request'].user
         coin = Coin.objects.get(id=validated_data['coin_id'])
+        threshold_percent = validated_data['threshold_percent']
 
-        return CoinSubscription.objects.create(user=user, coin=coin)
+        return CoinSubscription.objects.create(user=user, coin=coin, threshold_percent=threshold_percent)

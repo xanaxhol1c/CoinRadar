@@ -213,8 +213,9 @@ CELERY_BEAT_SCHEDULE = {
         #'schedule': crontab(minute='*/1'), 
     },
     'check-and-notify-users': {
-        'task': 'subscriptions.check_and_notify_users',
-        'schedule': crontab(minute='*/30'), 
+        'task': 'subscriptions.tasks.check_and_notify_users',
+        #'schedule': crontab(minute='*/30'), 
+        'schedule': crontab(minute='*/1'), 
     },
 }
 

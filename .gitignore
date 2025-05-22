@@ -3,5 +3,5 @@ __pycache__
 migrations
 celerybeat-schedule.bak
 celerybeat-schedule.dat
-celerybeat-schedule.info
+celerybeat-schedule.dir
 info

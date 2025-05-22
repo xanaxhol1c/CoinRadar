@@ -44,6 +44,26 @@ class CoinSubscriptionView(APIView):
         
         return Response({'message' : 'Subscribed successfully', 'coin' : subscription.coin.name}, status=status.HTTP_201_CREATED)
     
+
+    def patch(self, request, coin_slug):
+        user = request.user
+
+        coin = Coin.objects.filter(slug=coin_slug).first()
+
+        subscription = CoinSubscription.objects.filter(user=user, coin=coin).first()
+
+        if not subscription:
+            return Response({'message' : 'Subscription not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = SubscripeToCoinSerializer(subscription, data=request.data, partial=True, context = {"request" : request})
+
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response({'message': 'Subscription updated successfully'}, status=status.HTTP_200_OK)    
+
+        
     def delete(self, request, coin_slug):
         user = request.user
 

@@ -58,3 +58,25 @@ class SubscripeToCoinSerializer(serializers.ModelSerializer):
         threshold_percent = validated_data['threshold_percent']
 
         return CoinSubscription.objects.create(user=user, coin=coin, threshold_percent=threshold_percent)
+    
+    def update(self, instance, validated_data):
+        raw_threshold_percent = validated_data['threshold_percent']
+
+        if raw_threshold_percent is None:
+            raw_threshold_percent = '5.00'
+
+        try:
+            threshold_percent = Decimal(str(raw_threshold_percent)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            
+        except InvalidOperation:
+            raise serializers.ValidationError("Wrong threshold percent")
+
+        if threshold_percent < Decimal('5.00'):
+            raise serializers.ValidationError("Threshold percent must be >= 5.00%")
+        
+        instance.threshold_percent = threshold_percent
+
+        instance.save()
+
+        return instance
+

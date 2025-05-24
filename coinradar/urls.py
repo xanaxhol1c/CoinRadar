@@ -19,12 +19,13 @@ from django.urls import path, include
 
 import coins.urls
 import users.urls
-
+import subscriptions.urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include([
         path('coins/', include(coins.urls)),
         path('users/', include(users.urls)),
+        path('subscriptions/', include(subscriptions.urls)),
     ])),
 ]

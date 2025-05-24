@@ -12,7 +12,7 @@ import requests
 from coinradar.settings import COINGECKO_SECRET
 
 class CoinListView(APIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def get(self, request):
         top_coins = Coin.objects.order_by("-market_cap")

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getCoins } from '../api/coinApi';
 import CoinCard from '../components/CoinCard';
+import loadingImg from '../img/loading.webp'
 
 export default function Coins() {
     const [coins, setCoins] = useState([]);
@@ -19,10 +20,17 @@ export default function Coins() {
         return () => clearInterval(intervalId);
     }, []);
 
+    if (coins.length === 0)
+        return (
+        <div className='d-flex flex-column justify-content-center align-items-center'>
+            <h1 className='d-flex justify-content-center' style={{marginTop : 15 + "%"}}>Coins are loading...</h1>
+            <img className="loading-img" src={loadingImg} alt="loading img"/>
+        </div>
+         );
+
     return (
         <div>
             <h2>Cryptocurrency Prices by Market Cap</h2>
-
             <div className='mt-3'>
                 <div className="coin-card-titles list-unstyled font-weight-bold">
                     <span className="coin-card-field">Name</span>

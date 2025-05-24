@@ -1,13 +1,8 @@
-import {Link} from 'react-router-dom'
-
 export default function Home() {
-    return (
-        <div>
-            <h1>Welcome to CoinRadar!</h1>
-            <nav>
-                <Link to="/coins">Coins</Link> |
-                <Link to="/subscriptions">Subscriptions</Link>
-            </nav>
-        </div>
-    );
+  return (
+    <div>
+      <h2>Welcome to CoinRadar!</h2>
+      <p>Track cryptocurrency prices and manage your subscriptions with ease.</p>
+    </div>
+  );
 }

@@ -3,6 +3,8 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Coins from './pages/Coins';
 import Subscriptions from './pages/Subscriptions';
+import Login from './pages/Login';
+import Register  from './pages/Register';
 
 function App() {
   return (
@@ -12,6 +14,8 @@ function App() {
           <Route index element={<Home />} />
           <Route path="/coins" element={<Coins />} />
           <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Route>
       </Routes>
     </Router>

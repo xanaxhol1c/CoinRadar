@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import { getCoins } from '../api/coinApi';
 import CoinCard from '../components/CoinCard';
-import loadingImg from '../img/loading.webp'
+import loadingImg from '../img/loading.webp';
 
 export default function Coins() {
     const [coins, setCoins] = useState([]);

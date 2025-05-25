@@ -53,7 +53,6 @@ api.interceptors.response.use(
   }
 );
 
-// 🔐 API функції
 export async function getCoins() {
   try {
     const res = await api.get('/coins/');
@@ -92,6 +91,16 @@ export async function loginUser(form) {
   } catch (error) {
     console.error(error);
     throw new Error(error.response?.data?.detail || 'Failed to login');
+  }
+}
+
+export async function getSubscriptions() {
+  try {
+    const res = await api.get('/subscriptions/');
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    throw new Error(error.response?.data?.detail || 'Failed to get subscriptions');
   }
 }
 

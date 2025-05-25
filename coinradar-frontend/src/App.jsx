@@ -15,11 +15,15 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="/coins" element={
-            <RequireAuth>
-              <Coins />
+              <RequireAuth>
+                <Coins />
               </RequireAuth>
               }/>
-          <Route path="/subscriptions" element={<Subscriptions />} />
+          <Route path="/subscriptions" element={
+              <RequireAuth>
+                <Subscriptions />
+              </RequireAuth>
+          }/>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/logout" element={<Logout />} />

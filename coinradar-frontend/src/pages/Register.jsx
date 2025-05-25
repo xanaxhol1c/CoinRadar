@@ -65,6 +65,12 @@ export default function Register() {
         {success && <p className="text-success">{success}</p>}
         <button type="submit" className="btn btn-primary">Register</button>
       </form>
+            <div className="mt-1">
+            <p>
+                Already have account?{' '}
+                <a href="/login">Login</a>
+            </p>
+      </div>
     </div>
   );
 }

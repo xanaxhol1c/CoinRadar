@@ -57,6 +57,12 @@ export default function Login() {
         {success && <p className="text-success">{success}</p>}
         <button type="submit" className="btn btn-primary">Login</button>
       </form>
+      <div className="mt-1">
+            <p>
+                Don't have an account?{' '}
+                <a href="/register">Register</a>
+            </p>
+      </div>
     </div>
   );
 }

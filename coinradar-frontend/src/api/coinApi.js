@@ -104,6 +104,40 @@ export async function getSubscriptions() {
   }
 }
 
+export async function createSubscription({ coin_id, threshold_percent }) {
+    if (threshold_percent)
+        try {
+            const res = await api.post('/subscriptions/', {
+            coin_id,
+            threshold_percent
+            });
+            return res.data;
+        } catch (error) {
+            console.error(error);
+            throw new Error(error.response?.data?.detail || 'Failed to create subscription');
+        }
+    else
+        try {
+            const res = await api.post('/subscriptions/', {
+            coin_id
+            });
+            return res.data;
+        } catch (error) {
+            console.error(error);
+            throw new Error(error.response?.data?.detail || 'Failed to create subscription');
+        }
+    }
+
+export async function deleteSubscription(coin_slug) {
+  try {
+    const res = await api.delete(`/subscriptions/${coin_slug}/`);
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    throw new Error('Failed to delete subscriptions');
+  }
+}
+
 export function logoutUser() {
   localStorage.removeItem('access');
   localStorage.removeItem('refresh');

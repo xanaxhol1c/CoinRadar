@@ -1,5 +1,8 @@
 import notAvaliableIcon from '../img/not-avaliable-icon.png';
 import starSubscribedIcon from '../img/star-subscribed-icon.png';
+import editIcon from '../img/edit-icon.png';
+import yesIcon from '../img/yes-icon.png';
+import noIcon from '../img/no-icon.png';
 import { deleteSubscription, patchSubscription } from '../api/coinApi';
 import { useState } from 'react';
 
@@ -70,20 +73,32 @@ export default function SubscriptionCard({ subscription, onSubscribe }) {
             <span className="coin-card-field">
                 <p style={{ color: isNegative ? 'red' : 'green' }}>{subscription.coin_percent_change_24h}%</p>
             </span>
-            <span className="coin-card-field d-flex align-items-center gap-2 flex-column">
+            <span className="coin-card-field d-flex align-items-center gap-1 flex-column">
                 {isEditing ? (
                     <>
-                        <input
-                            type="number"
-                            value={editThreshold}
-                            onChange={(e) => setEditThreshold(e.target.value)}
-                            className={`form-control ${error ? 'is-invalid' : ''}`}
-                            style={{
-                                width: '110px',
-                                padding: '2px 6px',
-                                borderRadius: '4px'
-                            }}
-                        />
+                        <div className="d-flex align-items-center gap-2 flex-row">
+                            <input
+                                type="number"
+                                value={editThreshold}
+                                onChange={(e) => setEditThreshold(e.target.value)}
+                                className={`form-control ${error ? 'is-invalid' : ''}`}
+                                style={{
+                                    width: '80px',
+                                    padding: '2px 6px',
+                                    borderRadius: '4px'
+                                }}
+                            />
+                            <div className='d-flex' style={{ gap: '5px' }}>
+                                <img src={yesIcon} 
+                                    onClick={handleSaveThreshold}
+                                    alt="yes-icon"
+                                    style={{ width: "25px", height: "25px", cursor: "pointer" }}/>
+                                <img src={noIcon} 
+                                    onClick={handleCancelEdit}
+                                    alt="no-icon"
+                                    style={{ width: "25px", height: "25px", cursor: "pointer" }}/>
+                            </div>
+                        </div>
                         {error && (
                             <div
                                 className="invalid-feedback"
@@ -91,16 +106,14 @@ export default function SubscriptionCard({ subscription, onSubscribe }) {
                                 dangerouslySetInnerHTML={{ __html: error.replace('\n', '<br />') }}
                             />
                         )}
-
-                        <div className='mt-2 d-flex flex-row' style={{ gap: '5px' }}>
-                            <button className="btn btn-success btn-sm" onClick={handleSaveThreshold}>Save</button>
-                            <button className="btn btn-secondary btn-sm" onClick={handleCancelEdit}>Cancel</button>
-                        </div>
                     </>
                 ) : (
                     <div className="d-flex flex-row align-items-center subscribe-threshold-field" style={{gap: 10 + "px"}}>
                         <span>{threshold}%</span>
-                        <button className="btn btn-primary btn-sm" onClick={() => setIsEditing(true)}>Edit</button>
+                        <img src={editIcon} 
+                            onClick={() => setIsEditing(true)} 
+                            alt="edit-icon"
+                             style={{ width: "25px", height: "25px", cursor: "pointer" }}/>
                     </div>
                 )}
             </span>

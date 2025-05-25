@@ -7,10 +7,17 @@ class CoinSubscriptionSerializer(serializers.ModelSerializer):
     coin_name = serializers.CharField(source='coin.name', read_only=True)
     coin_ticker = serializers.CharField(source='coin.slug', read_only=True)
     coin_image = serializers.CharField(source='coin.image', read_only=True)
+    coin_percent_change_24h = serializers.CharField(source='coin.percent_change_24h', read_only=True)
     
     class Meta:
         model = CoinSubscription
-        fields = ['coin_name', 'coin_ticker', 'coin_image', 'created_at', 'threshold_percent', 'last_notified']
+        fields = ['coin_name', 
+                  'coin_ticker', 
+                  'coin_image', 
+                  'threshold_percent', 
+                  'coin_percent_change_24h', 
+                  'created_at', 
+                  'last_notified']
 
 
 class SubscripeToCoinSerializer(serializers.ModelSerializer):

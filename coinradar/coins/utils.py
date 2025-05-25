@@ -34,6 +34,7 @@ def refresh_top_coins(response_data):
             id=coin.get("id"),
             defaults={
             "name": coin.get("name"),
+            "image": coin.get("image"),
             "ticker": coin.get("symbol").upper(),
             "price": coin.get("current_price"),
             "market_cap": coin.get("market_cap"),

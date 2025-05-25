@@ -11,6 +11,7 @@ class Coin(models.Model):
     volume_24h = models.DecimalField(max_digits=30, decimal_places=2)
     percent_change_24h = models.DecimalField(max_digits=6, decimal_places=2)
     last_updated = models.DateTimeField(auto_now=True)
+    image = models.CharField(max_length=500, null=True, blank=True)
 
     class Meta:
         db_table = 'coin'

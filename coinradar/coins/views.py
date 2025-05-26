@@ -6,6 +6,7 @@ from .models import Coin, CoinHistory
 from .serializers import CoinSerializer, CoinHistorySerializer
 # from .utils import save_coin_history
 from datetime import date, timedelta, datetime
+from django.utils import timezone
 
 import requests
 
@@ -60,9 +61,9 @@ class CoinHistoryView(APIView):
         coin_history = CoinHistory.objects.filter(coin_ticker=coin_slug)
         
         if days:
-            history_date = date.today() - timedelta(days=int(days))
+            history_date = timezone.now() - timedelta(days=int(days))
 
-            coin_history = coin_history.filter(date__gte=history_date)
+            coin_history = coin_history.filter(date__gt=history_date)
       
         elif start_date and end_date:
             start_date = datetime.strptime(start_date, "%Y-%m-%d").date()

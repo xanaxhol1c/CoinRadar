@@ -21,7 +21,7 @@ export default function Login() {
       localStorage.setItem('access', access);
       localStorage.setItem('refresh', refresh);
       setSuccess('Login successful');
-      window.location.href = '/coins/';
+      window.location.href = '/';
     } catch (err) {
       setError(err.message || 'Something went wrong');
     }

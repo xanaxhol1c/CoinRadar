@@ -224,13 +224,13 @@ return (
               {history.length > 0 && (
                 <>
                   <li className="list-group-item d-flex justify-content-between align-items-center">
-                    {days}d High
+                    {infoMessage ? history.length : days}d High
                     <span className="fw-bold">
                       ${formatNumber(Math.max(...history.map(item => parseFloat(item.price))))}
                     </span>
                   </li>
                   <li className="list-group-item d-flex justify-content-between align-items-center">
-                    {days}d Low
+                    {infoMessage ? history.length : days}d Low
                     <span className="fw-bold">
                       ${formatNumber(Math.min(...history.map(item => parseFloat(item.price))))}
                     </span>

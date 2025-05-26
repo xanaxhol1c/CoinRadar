@@ -62,14 +62,23 @@ api.interceptors.response.use(
 );
 
 
-export async function getCoins() {
-  try {
-    const res = await api.get('/coins/');
-    return res.data;
-  } catch (error) {
-    console.error(error);
-    throw new Error(error.response?.data?.detail || 'Failed to fetch coins');
-  }
+export async function getCoins(limit=null) {
+  if (limit)
+    try {
+      const res = await api.get(`/coins/top/?limit=${limit}`);
+      return res.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error(error.response?.data?.detail || 'Failed to fetch coins');
+    }
+  else
+    try {
+      const res = await api.get('/coins/');
+      return res.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error(error.response?.data?.detail || 'Failed to fetch coins');
+    }
 }
 
 export async function getCoinDetails(slug) {

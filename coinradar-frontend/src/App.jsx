@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register  from './pages/Register';
 import RequireAuth from './components/RequireAuth';
 import Logout from './components/Logout';
+import CoinDetail from './components/СoinDetails';
 
 function App() {
   return (
@@ -27,6 +28,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/logout" element={<Logout />} />
+          <Route path="/coins/:slug" element={
+              <RequireAuth>
+                <CoinDetail />
+              </RequireAuth>
+          }/>
         </Route>
       </Routes>
     </Router>

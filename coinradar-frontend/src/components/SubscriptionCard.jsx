@@ -15,7 +15,7 @@ export default function SubscriptionCard({ subscription, onSubscribe }) {
     const lastNotified = subscription.last_notified;
     const isNegative = subscription.coin_percent_change_24h < 0;
     const hasIcon = subscription.coin_image;
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const options = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
 
     const handleToggleSubscribe = async () => {
         try {

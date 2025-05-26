@@ -24,7 +24,6 @@ class CoinListView(APIView):
 
 
 class TopCoinView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         limit = int(request.query_params.get('limit', 5))

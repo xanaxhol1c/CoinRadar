@@ -15,7 +15,7 @@ export default function CoinCard({ coin, isSubscribed, onSubscribe }) {
     }
 
     const handleToggleSubscribe = async (e) => {
-        e.stopPropagation(); // Зупиняємо всплиття події
+        e.stopPropagation();
         try {
             if (isSubscribed) {
                 await deleteSubscription(coin.slug);

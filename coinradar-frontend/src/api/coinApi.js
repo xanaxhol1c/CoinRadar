@@ -33,22 +33,34 @@ api.interceptors.response.use(
         if (!refresh) throw new Error('No refresh token');
 
         const res = await axios.post(`${BASE_URL}/users/token/refresh/`, { refresh });
-        const newAccess = res.data.access;
 
+        const newAccess = res.data.access;
         localStorage.setItem('access', newAccess);
         originalRequest.headers['Authorization'] = `Bearer ${newAccess}`;
 
         return api(originalRequest); 
       } catch (refreshError) {
+        if (refreshError.response?.status === 403) {
+          logoutUser();
+
+          window.location.href = '/login'; 
+        }
+
         console.error('Token refresh failed:', refreshError);
         logoutUser();
         return Promise.reject(refreshError);
       }
     }
 
+    if (error.response?.status === 403) {
+      logoutUser();
+      window.location.href = '/login'; 
+    }
+
     return Promise.reject(error);
   }
 );
+
 
 export async function getCoins() {
   try {

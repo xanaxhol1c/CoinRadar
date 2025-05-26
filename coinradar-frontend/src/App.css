@@ -85,7 +85,7 @@ main.container {
 
 .coin-card-field:first-child {
   text-align: left;
-  width: 425px; 
+  width: 475px; 
   margin-left: 25px;
   gap: 20px;
 }

@@ -215,7 +215,7 @@ SIMPLE_JWT = {
 CELERY_BEAT_SCHEDULE = {
     'refresh-coins-every-minute': {
         'task': 'coins.tasks.refresh_top_coins_task',
-        'schedule': crontab(minute='*/1'), 
+        'schedule': timedelta(seconds=15), 
     },
     'save-coin-history-every-day': {
         'task': 'coins.tasks.save_coin_history_task',

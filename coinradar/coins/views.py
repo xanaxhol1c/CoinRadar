@@ -6,13 +6,14 @@ from .models import Coin, CoinHistory
 from .serializers import CoinSerializer, CoinHistorySerializer
 # from .utils import save_coin_history
 from datetime import date, timedelta, datetime
+from django.utils import timezone
 
 import requests
 
 from coinradar.settings import COINGECKO_SECRET
 
 class CoinListView(APIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         top_coins = Coin.objects.order_by("-market_cap")
@@ -23,7 +24,6 @@ class CoinListView(APIView):
 
 
 class TopCoinView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         limit = int(request.query_params.get('limit', 5))
@@ -60,9 +60,9 @@ class CoinHistoryView(APIView):
         coin_history = CoinHistory.objects.filter(coin_ticker=coin_slug)
         
         if days:
-            history_date = date.today() - timedelta(days=int(days))
+            history_date = timezone.now() - timedelta(days=int(days))
 
-            coin_history = coin_history.filter(date__gte=history_date)
+            coin_history = coin_history.filter(date__gt=history_date)
       
         elif start_date and end_date:
             start_date = datetime.strptime(start_date, "%Y-%m-%d").date()

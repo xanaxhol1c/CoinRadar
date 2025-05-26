@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { loginUser } from '../api/coinApi';
+import { registerUser } from '../api/coinApi';
 
-export default function Login() {
-  const [form, setForm] = useState({ email: '', password: '' });
+export default function Register() {
+  const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -16,12 +16,9 @@ export default function Login() {
     setSuccess('');
 
     try {
-      const res = await loginUser(form);
-      const { access, refresh } = res;
-      localStorage.setItem('access', access);
-      localStorage.setItem('refresh', refresh);
-      setSuccess('Login successful');
-      window.location.href = '/';
+      const res = await registerUser(form);
+      setSuccess(res.message || 'Registration successful');
+      window.location.href = '/login/';
     } catch (err) {
       setError(err.message || 'Something went wrong');
     }
@@ -29,8 +26,19 @@ export default function Login() {
 
   return (
     <div className="container mt-4">
-      <h2>Login</h2>
+      <h2>Register</h2>
       <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <input
+            type="text"
+            name="username"
+            className="form-control"
+            placeholder="Username"
+            value={form.username}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <div className="mb-3">
           <input
             type="email"
@@ -55,12 +63,12 @@ export default function Login() {
         </div>
         {error && <p className="text-danger">{error}</p>}
         {success && <p className="text-success">{success}</p>}
-        <button type="submit" className="btn btn-primary">Login</button>
+        <button type="submit" className="btn btn-primary">Register</button>
       </form>
-      <div className="mt-1">
+            <div className="mt-1">
             <p>
-                Don't have an account?{' '}
-                <a href="/register">Register</a>
+                Already have account?{' '}
+                <a href="/login">Login</a>
             </p>
       </div>
     </div>

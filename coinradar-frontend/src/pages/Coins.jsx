@@ -1,21 +1,38 @@
-import { useEffect, useState } from 'react'
-import { getCoins } from '../api/coinApi';
+import { getCoins, getSubscriptions } from '../api/coinApi';
 import CoinCard from '../components/CoinCard';
-import loadingImg from '../img/loading.webp'
+import { useEffect, useState } from 'react';
+import loadingImg from '../img/loading.webp';
 
 export default function Coins() {
     const [coins, setCoins] = useState([]);
+    const [subscriptions, setSubscriptions] = useState([]);
+
+    const fetchCoins = async () => {
+        try {
+            const data = await getCoins();
+            setCoins(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchSubscriptions = async () => {
+        try {
+            const data = await getSubscriptions();
+            setSubscriptions(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = () => {
-            getCoins()
-                .then(data => setCoins(data))
-                .catch(err => console.error(err));
-        };
+        fetchCoins();
+        fetchSubscriptions();
 
-        fetchData();
-
-        const intervalId = setInterval(fetchData, 15000);
+        const intervalId = setInterval(() => {
+            fetchCoins();
+            fetchSubscriptions();
+        }, 15000);
 
         return () => clearInterval(intervalId);
     }, []);
@@ -23,7 +40,7 @@ export default function Coins() {
     if (coins.length === 0)
         return (
         <div className='d-flex flex-column justify-content-center align-items-center'>
-            <h1 className='d-flex justify-content-center' style={{marginTop : 15 + "%"}}>Coins are loading...</h1>
+            <h1 style={{marginTop: "15%"}}>Coins are loading...</h1>
             <img className="loading-img" src={loadingImg} alt="loading img"/>
         </div>
          );
@@ -42,10 +59,17 @@ export default function Coins() {
                 </div>
                 <ul className="list-unstyled">
                     {
-                        coins.map(coin => <CoinCard key={coin.id} coin={coin} />)
+                        coins.map(coin =>
+                            <CoinCard
+                                key={coin.id}
+                                coin={coin}
+                                isSubscribed={subscriptions.some(sub => String(sub.coin_name) === String(coin.name))}
+                                onSubscribe={fetchSubscriptions} 
+                            />
+                        )
                     }
                 </ul>
             </div>
         </div>
-    )
+    );
 }

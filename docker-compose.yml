@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  db: 
+    image: postgres:15
+    restart: always
+    volumes: 
+      - postgres_data:/var/lib/postgresql/postgres_data
+    environment:
+      POSTGRES_DB: coinradar_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerty
+
+  backend:
+    image: coinradar-api-img
+    build:
+      context: ./coinradar
+      dockerfile: Dockerfile
+    command: bash -c "python manage.py migrate && gunicorn coinradar.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ./coinradar:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    
+  frontend:
+    image: coinradar-react-img
+    build: 
+      context: ./coinradar-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

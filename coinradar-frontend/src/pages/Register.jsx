@@ -18,7 +18,7 @@ export default function Register() {
     try {
       const res = await registerUser(form);
       setSuccess(res.message || 'Registration successful');
-      window.location.href = '/login/';
+      window.location.href = '/login';
     } catch (err) {
       setError(err.message || 'Something went wrong');
     }

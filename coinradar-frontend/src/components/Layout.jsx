@@ -6,7 +6,6 @@ import '../App.css';
 export default function Layout() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access'));
 
-  // Щоб стежити за змінами токена в localStorage можна використовувати подію storage
   useEffect(() => {
     function syncAuth() {
       setIsAuthenticated(!!localStorage.getItem('access'));
@@ -16,7 +15,6 @@ export default function Layout() {
     return () => window.removeEventListener('storage', syncAuth);
   }, []);
 
-  // Функція, яку можна передати в Logout, щоб одразу оновити стан
   const handleLogout = () => {
     setIsAuthenticated(false);
   };

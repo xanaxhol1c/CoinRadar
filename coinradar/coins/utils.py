@@ -54,7 +54,7 @@ def refresh_top_coins(response_data):
             "price": coin.get("current_price"),
             "market_cap": coin.get("market_cap"),
             "volume_24h": coin.get("total_volume"),
-            "percent_change_24h": coin.get("price_change_percentage_24h")
+            "percent_change_24h": Decimal(str(coin.get("price_change_percentage_24h"))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         })
 
     cache.set(TOP_COINS_CACHE_KEY, cache_data)

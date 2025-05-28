@@ -1,8 +1,10 @@
-from datetime import date
 from .models import Coin, CoinHistory
-from decimal import Decimal, ROUND_HALF_UP, InvalidOperation, getcontext
+from decimal import Decimal, ROUND_HALF_UP
+from django.core.cache import cache
 import requests
-from coinradar.settings import COINGECKO_SECRET
+from coinradar.settings import COINGECKO_SECRET, TOP_COINS_CACHE_KEY
+from .serializers import CoinSerializer
+import json
 
 def fetch_data_from_api():
     coingeko_request_url = "https://api.coingecko.com/api/v3/coins/markets"
@@ -27,8 +29,9 @@ def fetch_data_from_api():
     except requests.RequestException as e:
         return {"message": f"Error fetching data: {e}"}
 
-
 def refresh_top_coins(response_data):
+    cache_data = []
+
     for coin in response_data:
         Coin.objects.update_or_create(
             id=coin.get("id"),
@@ -42,7 +45,19 @@ def refresh_top_coins(response_data):
             "percent_change_24h": coin.get("price_change_percentage_24h")}
         )
 
+        cache_data.append({
+            "id" : coin.get("id"),
+            "name": coin.get("name"),
+            "image": coin.get("image"),
+            "ticker": coin.get("symbol").upper(),
+            "slug": coin.get("symbol"),
+            "price": coin.get("current_price"),
+            "market_cap": coin.get("market_cap"),
+            "volume_24h": coin.get("total_volume"),
+            "percent_change_24h": coin.get("price_change_percentage_24h")
+        })
 
+    cache.set(TOP_COINS_CACHE_KEY, cache_data)
 
 def save_coin_history(coins_data_list):
     history_coins = []
@@ -57,10 +72,7 @@ def save_coin_history(coins_data_list):
 
             raw_change = ((current_price - prev_price) / prev_price) * 100
             
-            percent_change_24h = raw_change.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-                
-            # except (InvalidOperation, TypeError, ValueError) as e:
-            #     percent_change_24h = Decimal("0.00")  
+            percent_change_24h = raw_change.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) 
         
         else: 
             percent_change_24h = coin_data.percent_change_24h

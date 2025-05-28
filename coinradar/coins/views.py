@@ -1,26 +1,40 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from .models import Coin, CoinHistory
 from .serializers import CoinSerializer, CoinHistorySerializer
-# from .utils import save_coin_history
-from datetime import date, timedelta, datetime
+from datetime import timedelta, datetime
 from django.utils import timezone
+from django.core.cache import cache
+from coinradar.settings import TOP_COINS_CACHE_KEY
+from django.core.cache.backends.base import InvalidCacheBackendError
 
-import requests
+import logging
 
-from coinradar.settings import COINGECKO_SECRET
+logger = logging.getLogger(__name__)
 
 class CoinListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        top_coins = Coin.objects.order_by("-market_cap")
+        try:
+            top_coins = cache.get(TOP_COINS_CACHE_KEY)
 
-        serializer = CoinSerializer(top_coins, many=True)
+        except (ConnectionError, InvalidCacheBackendError) as e:
+            logger.warning(f'Redis connection failed: {e}')
+            top_coins = None
+            
+            
+        if top_coins:
+            return Response(top_coins)
+        
+        else:
+            top_coins = Coin.objects.order_by("-market_cap")
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            serializer = CoinSerializer(top_coins, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TopCoinView(APIView):
@@ -78,50 +92,3 @@ class CoinHistoryView(APIView):
 
         return Response(serializer.data)
         
-
-        
-        
-
-
-
-# class RefreshCoinsView(APIView):
-#     permission_classes = [IsAdminUser]
-#     def post(self, request):
-#         coingeko_request_url = "https://api.coingecko.com/api/v3/coins/markets"
-
-#         headers = {
-#             "accept": "application/json",
-#             "x-cg-demo-api-key": COINGECKO_SECRET
-#         }
-
-#         params = {
-#             "vs_currency": "usd",
-#             "per_page": 100,
-#             "page": 1
-#         }
-
-#         try:
-#             coingeko_response = requests.get(coingeko_request_url, headers=headers, params=params)
-#             coingeko_response.raise_for_status()
-#             response_data = coingeko_response.json()
-
-#         except requests.RequestException as e:
-#             print(f"Error fetching data: {e}")
-#             return Response({"message": f"Error fetching data: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # for coin in response_data:
-        #     Coin.objects.update_or_create(
-        #         id=coin.get("id"),
-        #         defaults={
-        #             "name": coin.get("name"),
-        #             "ticker": coin.get("symbol").upper(),
-        #             "price": coin.get("current_price"),
-        #             "market_cap": coin.get("market_cap"),
-        #             "volume_24h": coin.get("total_volume"),
-        #             "percent_change_24h": coin.get("price_change_percentage_24h")
-        #         }
-        #     )
-
-        # save_coin_history(response_data)
-
-        # return Response({"message": "Coins refreshed successfully."}, status=status.HTTP_200_OK)

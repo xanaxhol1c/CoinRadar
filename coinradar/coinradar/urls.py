@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from .yasg import urlpatterns as docs_urls
+
 import coins.urls
 import users.urls
 import subscriptions.urls
@@ -29,3 +31,5 @@ urlpatterns = [
         path('subscriptions/', include(subscriptions.urls)),
     ])),
 ]
+
+urlpatterns += docs_urls

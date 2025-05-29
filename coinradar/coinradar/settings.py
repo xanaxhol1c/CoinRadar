@@ -50,11 +50,13 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_celery_beat',
     'corsheaders',
+    'drf_yasg',
 
     'coins',
     'users',
     'subscriptions'
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -243,3 +245,13 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
+
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+      }
+   }
+}

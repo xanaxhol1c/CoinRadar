@@ -19,7 +19,7 @@ export default function CoinCard({ coin, isSubscribed, onSubscribe, showSubscrib
             if (isSubscribed) {
                 await deleteSubscription(coin.slug);
             } else {
-                await createSubscription({ coin_id: coin.id });
+                await createSubscription(coin.slug);
             }
             if (onSubscribe) onSubscribe(); 
         } catch (error) {

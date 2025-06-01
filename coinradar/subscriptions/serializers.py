@@ -21,15 +21,15 @@ class CoinSubscriptionSerializer(serializers.ModelSerializer):
 
 
 class SubscripeToCoinSerializer(serializers.ModelSerializer):
-    coin_id = serializers.CharField(write_only=True)
+    coin_slug = serializers.CharField(write_only=True)
 
     class Meta:
         model = CoinSubscription
-        fields = ['coin_id', 'created_at', 'threshold_percent']
+        fields = ['coin_slug', 'created_at', 'threshold_percent']
 
-    def validate_coin_id(self, value):
+    def validate_coin_slug(self, value):
         try:
-            coin = Coin.objects.get(id=value)
+            coin = Coin.objects.get(slug=value)
         except Coin.DoesNotExist:
             raise serializers.ValidationError("Coin with given id does not exist")
         return value
@@ -37,7 +37,12 @@ class SubscripeToCoinSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         user = self.context['request'].user
 
-        coin_id = attrs.get('coin_id')
+        coin_slug = attrs.get('coin_slug')
+
+        coin = Coin.objects.filter(slug=coin_slug).first()
+
+        if CoinSubscription.objects.filter(user=user, coin=coin).exists():
+            raise serializers.ValidationError("Subscription already exists")
 
         raw_threshold_percent = attrs.get('threshold_percent')
 
@@ -52,9 +57,6 @@ class SubscripeToCoinSerializer(serializers.ModelSerializer):
 
         if threshold_percent < Decimal('5.00'):
             raise serializers.ValidationError("Threshold percent must be >= 5.00%")
-
-        if CoinSubscription.objects.filter(user=user, coin_id=coin_id).exists():
-            raise serializers.ValidationError("Subscription already exists")
         
         attrs['threshold_percent'] = threshold_percent
 
@@ -62,7 +64,8 @@ class SubscripeToCoinSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         user = self.context['request'].user
-        coin = Coin.objects.get(id=validated_data['coin_id'])
+        coin_slug = validated_data['coin_slug']
+        coin = Coin.objects.get(slug=coin_slug)
         threshold_percent = validated_data['threshold_percent']
 
         return CoinSubscription.objects.create(user=user, coin=coin, threshold_percent=threshold_percent)

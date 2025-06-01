@@ -149,11 +149,9 @@ export async function getSubscriptions() {
   }
 }
 
-export async function createSubscription({coin_id}) {
+export async function createSubscription(coin_slug) {
         try {
-            const res = await api.post('/subscriptions/', {
-            coin_id
-            });
+            const res = await api.post(`/subscriptions/${coin_slug}/`);
             return res.data;
         } catch (error) {
             console.error(error);

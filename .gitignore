@@ -1,0 +1,12 @@
+.env
+venv
+__pycache__
+migrations
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir
+celerybeat-schedule-shm
+celerybeat-schedule-wal
+celerybeat-schedule
+info
+coinsdump.sql

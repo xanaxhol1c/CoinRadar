@@ -1,0 +1,78 @@
+version: '3.9'
+name: coinradar-container
+
+services:
+  db: 
+    image: postgres:17
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes: 
+      - postgres_data:/var/lib/postgresql/postgres_data
+      - ./coinsdump.sql:/docker-entrypoint-initdb.d/coinsdump.sql
+    environment:
+      POSTGRES_DB: coinradar_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerty
+
+  redis:
+        image: redis:7.0.5-alpine 
+        restart: unless-stopped
+        expose:
+            - 6379
+
+  backend:
+    image: coinradar-api-img
+    build:
+      context: ./coinradar
+      dockerfile: Dockerfile
+    command: bash -c "python manage.py migrate && gunicorn coinradar.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ./coinradar:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+          condition: service_healthy
+    
+  celery-worker:
+    image: coinradar-api-img
+    build:
+      context: ./coinradar
+      dockerfile: Dockerfile
+    command: celery -A coinradar worker --loglevel=info --pool=solo
+    volumes:
+      - ./coinradar:/app
+    depends_on:
+      - db
+      - redis
+      - backend
+
+  celery-beat:
+    image: coinradar-api-img
+    build:
+      context: ./coinradar
+      dockerfile: Dockerfile
+    command: celery -A coinradar beat --loglevel=info
+    volumes:
+      - ./coinradar:/app
+    depends_on:
+      - db
+      - redis
+      - backend
+
+  frontend:
+    image: coinradar-react-img
+    build: 
+      context: ./coinradar-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

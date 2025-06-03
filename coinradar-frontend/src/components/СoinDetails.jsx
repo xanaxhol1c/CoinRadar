@@ -81,34 +81,58 @@ export default function CoinDetail() {
 
 
     const formatChartData = () => {
-        if (!history || history.length === 0) return null;
+  if (!history || history.length === 0) return null;
 
-        const sortedHistory = [...history].sort((a, b) =>
-        new Date(a.date) - new Date(b.date)
-        );
+  // Отримуємо поточну дату
+  const endDate = new Date();
+  // Визначаємо початкову дату (days днів тому)
+  const startDate = new Date();
+  startDate.setDate(endDate.getDate() - days + 1);
 
-    return {
-        labels: sortedHistory.map(item =>
-            new Date(item.date).toLocaleDateString('us-EN', {
-            day: 'numeric',
-            month: 'short'
-            })
-        ),
-        datasets: [
-            {
-                label: 'Price (USD)',
-                data: sortedHistory.map(item => parseFloat(item.price)),
-                borderColor: 'rgba(58, 128, 233, 1)',
-                backgroundColor: 'rgba(58, 128, 233, 0.1)',
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: 'rgba(58, 128, 233, 1)',
-                pointRadius: 3,
-                pointHoverRadius: 5,
-            },
-        ],
-        };
-    };
+  // Створюємо масив усіх дат у періоді
+  const allDates = [];
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    allDates.push(new Date(d));
+  }
+
+  // Створюємо об'єкт для швидкого пошуку даних за датою
+  const historyByDate = {};
+  history.forEach(item => {
+    const date = new Date(item.date);
+    // Нормалізуємо дату (без часу) для порівняння
+    const dateKey = date.toISOString().split('T')[0];
+    historyByDate[dateKey] = parseFloat(item.price);
+  });
+
+  // Заповнюємо дані для всіх дат
+  const prices = allDates.map(date => {
+    const dateKey = date.toISOString().split('T')[0];
+    return historyByDate[dateKey] || null;
+  });
+
+  return {
+    labels: allDates.map(date =>
+      date.toLocaleDateString('us-EN', {
+        day: 'numeric',
+        month: 'short'
+      })
+    ),
+    datasets: [
+      {
+        label: 'Price (USD)',
+        data: prices,
+        borderColor: 'rgba(58, 128, 233, 1)',
+        backgroundColor: 'rgba(58, 128, 233, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgba(58, 128, 233, 1)',
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        spanGaps: true, // Дозволяємо пропуски в даних
+      },
+    ],
+  };
+};
 
   const chartData = formatChartData();
 
@@ -133,15 +157,6 @@ export default function CoinDetail() {
 
     return percentChange.toFixed(2);  
     };
-
-//   if (loading) { 
-//     return (
-//         <div className='d-flex flex-column justify-content-center align-items-center'>
-//             <h1 style={{marginTop: "15%"}}>Coin details are loading...</h1>
-//             <img className="loading-img" src={loadingImg} alt="loading img"/>
-//         </div>
-//     );
-//   }
 
   if (error) {
     return (
@@ -265,7 +280,9 @@ return (
                       legend: { display: false },
                       tooltip: {
                         callbacks: {
-                          label: (context) => `$${context.raw.toLocaleString()}`
+                          label: (context) => context.raw === null 
+                            ? 'No data' 
+                            : `$${context.raw.toLocaleString()}`
                         }
                       }
                     },

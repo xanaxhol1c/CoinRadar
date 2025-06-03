@@ -50,8 +50,8 @@ export default function CoinCard({ coin, isSubscribed, onSubscribe, showSubscrib
                 </span>
                 <span className="coin-card-field"><p>{coin.ticker}</p></span>
                 <span className="coin-card-field"><p>{numberWithCommas(Number(coin.price).toFixed(2))}$</p></span>
-                <span className="coin-card-field"><p>{numberWithCommas(coin.market_cap)}$</p></span>
-                <span className="coin-card-field"><p>{numberWithCommas(coin.volume_24h)}$</p></span>
+                <span className="coin-card-field"><p>{numberWithCommas(Math.round(Number(coin.market_cap)))}$</p></span>
+                <span className="coin-card-field"><p>{numberWithCommas(Math.round(Number(coin.volume_24h)))}$</p></span>
                 <span className="coin-card-field">
                     <p style={{ color: isNegative ? 'red' : 'green' }}>
                         {coin.percent_change_24h}%

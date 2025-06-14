@@ -80,31 +80,28 @@ export default function CoinDetail() {
     }, [slug, days]);
 
 
-    const formatChartData = () => {
+const formatChartData = () => {
   if (!history || history.length === 0) return null;
 
-  // Отримуємо поточну дату
   const endDate = new Date();
-  // Визначаємо початкову дату (days днів тому)
-  const startDate = new Date();
-  startDate.setDate(endDate.getDate() - days + 1);
+  endDate.setHours(0, 0, 0, 0);
 
-  // Створюємо масив усіх дат у періоді
+  const startDate = new Date(endDate);
+  startDate.setDate(startDate.getDate() - days + 1);
+  startDate.setHours(0, 0, 0, 0);
+
   const allDates = [];
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     allDates.push(new Date(d));
   }
 
-  // Створюємо об'єкт для швидкого пошуку даних за датою
   const historyByDate = {};
   history.forEach(item => {
     const date = new Date(item.date);
-    // Нормалізуємо дату (без часу) для порівняння
     const dateKey = date.toISOString().split('T')[0];
     historyByDate[dateKey] = parseFloat(item.price);
   });
 
-  // Заповнюємо дані для всіх дат
   const prices = allDates.map(date => {
     const dateKey = date.toISOString().split('T')[0];
     return historyByDate[dateKey] || null;
@@ -112,7 +109,7 @@ export default function CoinDetail() {
 
   return {
     labels: allDates.map(date =>
-      date.toLocaleDateString('us-EN', {
+      date.toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'short'
       })
@@ -128,11 +125,12 @@ export default function CoinDetail() {
         pointBackgroundColor: 'rgba(58, 128, 233, 1)',
         pointRadius: 3,
         pointHoverRadius: 5,
-        spanGaps: true, // Дозволяємо пропуски в даних
+        spanGaps: true,
       },
     ],
   };
 };
+
 
   const chartData = formatChartData();
 
@@ -216,7 +214,6 @@ return (
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
         >
-            <option value={1}>1 Day</option>
             <option value={3}>3 Days</option>
             <option value={7}>7 Days</option>
             <option value={14}>14 Days</option>

@@ -28,7 +28,7 @@ export default function CoinCard({ coin, isSubscribed, onSubscribe, showSubscrib
     };
 
     const handleCoinCardClick = () => {
-        navigate(`/coins/${coin.slug}/`);
+        navigate(`/coins/${coin.id}/`);
     };
 
     return (

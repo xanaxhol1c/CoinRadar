@@ -90,23 +90,23 @@ class CoinDetailView(APIView):
 
     def get(self, request, coin_slug):
         """
-        Retrieve data of one specific coin by slug.
+        Retrieve data of one specific coin by slug(id).
 
         This endpoint accepts a coin slug and searches for coin with 
-        that slug in PostgreSQL database. If coin with that slug wasn't found 
+        that id in PostgreSQL database. If coin with that id wasn't found 
         returns HTTP 404 Not Found. Otherwise returns JSON data of coin.
 
         Path Parameters:
-            - coin_slug (str): The unique identifier (slug) of the coin.
+            - coin_slug (str): The unique identifier (id) of the coin.
 
         Returns:
             - 200 OK: A JSON list of coins ordered by market capitalization.
-            - 404 Not Found: If coin with that slug wasn't found.
+            - 404 Not Found: If coin with that id wasn't found.
 
         Source:
             - PostgreSQL database
         """
-        coin = Coin.objects.filter(slug=coin_slug).first()
+        coin = Coin.objects.filter(id=coin_slug).first()
 
         if coin is None:
             return Response({"message" : "Coin not found"}, status.HTTP_404_NOT_FOUND)
@@ -120,12 +120,12 @@ class CoinHistoryView(APIView):
         """
         Retrieve historical data for a specific coin.
 
-        This endpoint returns historical price data for a given coin, identified by its slug.
+        This endpoint returns historical price data for a given coin, identified by its slug(id).
         The user can optionally specify a period using the days parameter or a custom
         date range using start_date and end_date.
 
         Path Parameters:
-            - coin_slug (str): The unique identifier (slug) of the coin.
+            - coin_slug (str): The unique identifier (id) of the coin.
 
         Query Parameters (optional):
             - days (int): Number of recent days to retrieve data for (e.g., days=7).
@@ -137,7 +137,7 @@ class CoinHistoryView(APIView):
 
         Responses:
             - 200 OK: A JSON list of historical data points for the coin.
-            - 404 Not Found: If no coin history was found for the given slug or date range.
+            - 404 Not Found: If no coin history was found for the given id or date range.
 
         Source:
             - PostgreSQL database
@@ -146,7 +146,7 @@ class CoinHistoryView(APIView):
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
 
-        coin_history = CoinHistory.objects.filter(coin_ticker=coin_slug)
+        coin_history = CoinHistory.objects.filter(coin_id=coin_slug)
         
         if days:
             history_date = timezone.now() - timedelta(days=int(days))

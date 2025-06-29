@@ -18,8 +18,8 @@ class Command(BaseCommand):
 
             params = {
                 "vs_currency": "usd",
-                "from": 1746931200,  
-                "to": 1749878400    
+                "from": 1750003200,  
+                "to": 1751194440    
             }
 
             try:
@@ -63,7 +63,7 @@ class Command(BaseCommand):
 
 
                 CoinHistory.objects.bulk_create(history_objects)
-                time.sleep(60)
+                time.sleep(30)
 
             except requests.RequestException as e:
                 self.stdout.write(self.style.ERROR(f"Request error: {e}"))

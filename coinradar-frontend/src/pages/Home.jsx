@@ -43,14 +43,14 @@ export default function Home() {
         <h5 style={{fontWeight: 400}}>Track cryptocurrency prices and manage your subscriptions with ease.</h5>
       </div>
       <div className="mt-4">
-        <div className="coin-card-titles list-unstyled font-weight-bold" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-          <span style={{ flex: 2 }}>Name</span>
-          <span style={{ flex: 1 }}>Ticker</span>
-          <span style={{ flex: 1 }}>Price</span>
-          <span style={{ flex: 2 }}>Market Cap</span>
-          <span style={{ flex: 2 }}>Volume 24h</span>
-          <span style={{ flex: 1 }}>Change 24h</span>
-        </div>
+                <div className="coin-card-titles list-unstyled font-weight-bold">
+                    <span className="coin-card-field">Name</span>
+                    <span className="coin-card-field">Ticker</span>
+                    <span className="coin-card-field">Price</span>
+                    <span className="coin-card-field">Market Cap</span>
+                    <span className="coin-card-field">Volume 24h</span>
+                    <span className="coin-card-field">Change 24h</span>
+            </div>
         <ul className="list-unstyled" style={{ paddingLeft: 0 }}>
           {coins.map(coin => (
             <CoinCard

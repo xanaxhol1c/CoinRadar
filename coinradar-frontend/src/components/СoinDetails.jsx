@@ -80,35 +80,57 @@ export default function CoinDetail() {
     }, [slug, days]);
 
 
-    const formatChartData = () => {
-        if (!history || history.length === 0) return null;
+const formatChartData = () => {
+  if (!history || history.length === 0) return null;
 
-        const sortedHistory = [...history].sort((a, b) =>
-        new Date(a.date) - new Date(b.date)
-        );
+  const endDate = new Date();
+  endDate.setHours(0, 0, 0, 0);
 
-    return {
-        labels: sortedHistory.map(item =>
-            new Date(item.date).toLocaleDateString('us-EN', {
-            day: 'numeric',
-            month: 'short'
-            })
-        ),
-        datasets: [
-            {
-                label: 'Price (USD)',
-                data: sortedHistory.map(item => parseFloat(item.price)),
-                borderColor: 'rgba(58, 128, 233, 1)',
-                backgroundColor: 'rgba(58, 128, 233, 0.1)',
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: 'rgba(58, 128, 233, 1)',
-                pointRadius: 3,
-                pointHoverRadius: 5,
-            },
-        ],
-        };
-    };
+  const startDate = new Date(endDate);
+  startDate.setDate(startDate.getDate() - days + 1);
+  startDate.setHours(0, 0, 0, 0);
+
+  const allDates = [];
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    allDates.push(new Date(d));
+  }
+
+  const historyByDate = {};
+  history.forEach(item => {
+    const date = new Date(item.date);
+    const dateKey = date.toISOString().split('T')[0];
+    historyByDate[dateKey] = parseFloat(item.price);
+  });
+
+  const prices = allDates.map(date => {
+    const dateKey = date.toISOString().split('T')[0];
+    return historyByDate[dateKey] || null;
+  });
+
+  return {
+    labels: allDates.map(date =>
+      date.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short'
+      })
+    ),
+    datasets: [
+      {
+        label: 'Price (USD)',
+        data: prices,
+        borderColor: 'rgba(58, 128, 233, 1)',
+        backgroundColor: 'rgba(58, 128, 233, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgba(58, 128, 233, 1)',
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        spanGaps: true,
+      },
+    ],
+  };
+};
+
 
   const chartData = formatChartData();
 
@@ -133,15 +155,6 @@ export default function CoinDetail() {
 
     return percentChange.toFixed(2);  
     };
-
-//   if (loading) { 
-//     return (
-//         <div className='d-flex flex-column justify-content-center align-items-center'>
-//             <h1 style={{marginTop: "15%"}}>Coin details are loading...</h1>
-//             <img className="loading-img" src={loadingImg} alt="loading img"/>
-//         </div>
-//     );
-//   }
 
   if (error) {
     return (
@@ -201,7 +214,6 @@ return (
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
         >
-            <option value={1}>1 Day</option>
             <option value={3}>3 Days</option>
             <option value={7}>7 Days</option>
             <option value={14}>14 Days</option>
@@ -265,7 +277,9 @@ return (
                       legend: { display: false },
                       tooltip: {
                         callbacks: {
-                          label: (context) => `$${context.raw.toLocaleString()}`
+                          label: (context) => context.raw === null 
+                            ? 'No data' 
+                            : `$${context.raw.toLocaleString()}`
                         }
                       }
                     },

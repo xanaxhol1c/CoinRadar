@@ -26,7 +26,7 @@ class CoinHistory(models.Model):
     coin_id = models.CharField(max_length=50)
     coin_name = models.CharField(max_length=50)
     coin_ticker = models.CharField(max_length=15)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(blank=True)
     price = models.DecimalField(max_digits=20, decimal_places=10)
     market_cap = models.DecimalField(max_digits=30, decimal_places=2)
     volume_24h = models.DecimalField(max_digits=30, decimal_places=2)
